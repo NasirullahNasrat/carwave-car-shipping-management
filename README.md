@@ -25,7 +25,7 @@ A comprehensive vehicle lifecycle management system built with Django, featuring
 ## 📸 Screenshots
 
 *(Add actual screenshots later)*  
-![Sample Interface](https://via.placeholder.com/600x400?text=Vehicle+Management+Interface)
+![Sample Interface]([https://via.placeholder.com/600x400?text=Vehicle+Management+Interface](https://github.com/NasirullahNasrat/carwave-car-shipping-management/blob/main/project_images/1.png))
 
 ## 🚀 Installation
 
