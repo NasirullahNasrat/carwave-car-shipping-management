@@ -30,7 +30,7 @@ https://raw.githubusercontent.com/NasirullahNasrat/carwave-car-shipping-manageme
 ## 🚀 Installation
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.10+
 - PostgreSQL
 - pip
 
