@@ -47,8 +47,8 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Configure settings (copy and edit example)
-cp .env.example .env
+# Configure settings
+settings.py
 
 # Run migrations
 python manage.py migrate
