@@ -38,7 +38,7 @@ https://raw.githubusercontent.com/NasirullahNasrat/carwave-car-shipping-manageme
 ```bash
 # Clone repository
 git clone git@github.com:NasirullahNasrat/carwave-car-shipping-management.git
-cd vehicle-management-system
+cd carwave-car-shipping-management
 
 # Set up virtual environment
 python -m venv venv
