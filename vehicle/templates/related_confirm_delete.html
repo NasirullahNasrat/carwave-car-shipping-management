@@ -1,0 +1,7 @@
+{% extends 'vehicle/base_confirm_delete.html' %}
+
+{% with cancel_url="related-list" %}
+{% block content %}
+{{ block.super }}
+{% endblock %}
+{% endwith %}

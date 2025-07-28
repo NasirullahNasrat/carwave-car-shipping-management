@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">
+            {% if object %}
+                ویرایش مصارف انتقالات
+            {% else %}
+                ایجاد مصارف انتقالات جدید
+            {% endif %}
+        </h1>
+        
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                {% for error in form.non_field_errors %}
+                <p class="text-red-700">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Car Selection -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.car.id_for_label }}">
+                        {{ form.car.label }}
+                    </label>
+                    {{ form.car }}
+                    {% for error in form.car.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                
+                <!-- Dates Section -->
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.return_date_from_dubai.id_for_label }}">
+                            {{ form.return_date_from_dubai.label }}
+                        </label>
+                        {{ form.return_date_from_dubai }}
+                        {% for error in form.return_date_from_dubai.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.herat_arrival_date.id_for_label }}">
+                            {{ form.herat_arrival_date.label }}
+                        </label>
+                        {{ form.herat_arrival_date }}
+                        {% for error in form.herat_arrival_date.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Shipping Section -->
+                <div class="md:col-span-2 border-t pt-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">اطلاعات شیپینگ</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ form.shipiping_price_to_islam_qala.label }}
+                            </label>
+                            <div class="flex gap-2">
+                                <div class="flex-1">
+                                    {{ form.shipiping_price_to_islam_qala }}
+                                    {% for error in form.shipiping_price_to_islam_qala.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="w-24">
+                                    {{ form.shipiping_price_to_islam_qala_currency }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ form.paid_value_for_shipping.label }}
+                            </label>
+                            <div class="flex gap-2">
+                                <div class="flex-1">
+                                    {{ form.paid_value_for_shipping }}
+                                    {% for error in form.paid_value_for_shipping.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="w-24">
+                                    {{ form.paid_value_for_shipping_currency }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.shipiping_price_to_islam_qala_date.id_for_label }}">
+                                تاریخ پرداخت شیپنگ
+                            </label>
+                            {{ form.shipiping_price_to_islam_qala_date }}
+                            {% for error in form.shipiping_price_to_islam_qala_date.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customs Payments Section -->
+                <div class="md:col-span-2 border-t pt-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">محصولات گمرکی</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ form.gomrok_payment.label }}
+                            </label>
+                            <div class="flex gap-2">
+                                <div class="flex-1">
+                                    {{ form.gomrok_payment }}
+                                    {% for error in form.gomrok_payment.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="w-24">
+                                    {{ form.gomrok_payment_currency }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.gomrok_payment_date.id_for_label }}">
+                                {{ form.gomrok_payment_date.label }}
+                            </label>
+                            {{ form.gomrok_payment_date }}
+                            {% for error in form.gomrok_payment_date.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Gomrok Remain Payment (Conditional) -->
+                    <div class="mt-4">
+                        <div class="flex items-center mb-2">
+                            {{ form.has_gomrok_remain_payment }}
+                            <label class="ml-2 block text-sm font-medium text-gray-700" for="{{ form.has_gomrok_remain_payment.id_for_label }}">
+                                {{ form.has_gomrok_remain_payment.label }}
+                            </label>
+                        </div>
+                        
+                        <div id="gomrok-remain-fields" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 {% if not form.has_gomrok_remain_payment.value %}hidden{% endif %}">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.gomrok_remain_payment.id_for_label }}">
+                                    {{ form.gomrok_remain_payment.label }}
+                                </label>
+                                {{ form.gomrok_remain_payment }}
+                                {% for error in form.gomrok_remain_payment.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.gomrok_remain_payment_date.id_for_label }}">
+                                    {{ form.gomrok_remain_payment_date.label }}
+                                </label>
+                                {{ form.gomrok_remain_payment_date }}
+                                {% for error in form.gomrok_remain_payment_date.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Commission Section -->
+                <div class="md:col-span-2 border-t pt-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">کمیشن شرکت تجارتی</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ form.business_company_comission.label }}
+                            </label>
+                            <div class="flex gap-2">
+                                <div class="flex-1">
+                                    {{ form.business_company_comission }}
+                                    {% for error in form.business_company_comission.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="w-24">
+                                    {{ form.business_company_comission_currency }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.business_company_comission_date.id_for_label }}">
+                                {{ form.business_company_comission_date.label }}
+                            </label>
+                            {{ form.business_company_comission_date }}
+                            {% for error in form.business_company_comission_date.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Business Remain Commission (Conditional) -->
+                    <div class="mt-4">
+                        <div class="flex items-center mb-2">
+                            {{ form.has_business_company_remain_comission }}
+                            <label class="ml-2 block text-sm font-medium text-gray-700" for="{{ form.has_business_company_remain_comission.id_for_label }}">
+                                {{ form.has_business_company_remain_comission.label }}
+                            </label>
+                        </div>
+                        
+                        <div id="business-remain-fields" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 {% if not form.has_business_company_remain_comission.value %}hidden{% endif %}">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.business_company_remain_comission.id_for_label }}">
+                                    {{ form.business_company_remain_comission.label }}
+                                </label>
+                                {{ form.business_company_remain_comission }}
+                                {% for error in form.business_company_remain_comission.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.business_company_remain_comission_date.id_for_label }}">
+                                    {{ form.business_company_remain_comission_date.label }}
+                                </label>
+                                {{ form.business_company_remain_comission_date }}
+                                {% for error in form.business_company_remain_comission_date.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Section -->
+                <div class="md:col-span-2 border-t pt-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">خلاصه مصارف</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-lg">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                مصارف تا هرات
+                            </label>
+                            <div class="text-lg font-semibold">
+                                {{ object.expeses_up_to_herat|default:"0"|floatformat:2 }} {{ base_currency }}
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">(قیمت شیپنگ + محصول گمرکی + کمیشن شرکت)</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                تمام مصارف الی هرات
+                            </label>
+                            <div class="text-lg font-semibold">
+                                {{ object.all_expeses_to_herat|default:"0"|floatformat:2 }} {{ base_currency }}
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">(قیمت تمام شده تا دبی + مصارف تا هرات)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end space-x-3">
+                <a href="{% if object %}{% url 'world_expenses_detail' object.pk %}{% else %}{% url 'world_expenses_list' %}{% endif %}" 
+                   class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md transition duration-150 ease-in-out">
+                    انصراف
+                </a>
+                <button type="submit" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out">
+                    ذخیره اطلاعات
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle Gomrok remain fields
+    const gomrokCheckbox = document.getElementById('{{ form.has_gomrok_remain_payment.id_for_label }}');
+    const gomrokFields = document.getElementById('gomrok-remain-fields');
+    
+    if (gomrokCheckbox && gomrokFields) {
+        gomrokCheckbox.addEventListener('change', function() {
+            gomrokFields.classList.toggle('hidden', !this.checked);
+            if (this.checked) {
+                // Clear fields when unchecked
+                document.getElementById('{{ form.gomrok_remain_payment.id_for_label }}').value = '';
+                document.getElementById('{{ form.gomrok_remain_payment_date.id_for_label }}').value = '';
+            }
+        });
+    }
+
+    // Toggle Business remain fields
+    const businessCheckbox = document.getElementById('{{ form.has_business_company_remain_comission.id_for_label }}');
+    const businessFields = document.getElementById('business-remain-fields');
+    
+    if (businessCheckbox && businessFields) {
+        businessCheckbox.addEventListener('change', function() {
+            businessFields.classList.toggle('hidden', !this.checked);
+            if (this.checked) {
+                // Clear fields when unchecked
+                document.getElementById('{{ form.business_company_remain_comission.id_for_label }}').value = '';
+                document.getElementById('{{ form.business_company_remain_comission_date.id_for_label }}').value = '';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

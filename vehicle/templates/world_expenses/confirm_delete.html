@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% trans "Confirm Delete" %}</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <p>{% trans "Are you sure you want to delete this world expenses record?" %}</p>
+            <p><strong>{% trans "Car" %}:</strong> {{ object.car.mark }}</p>
+            <p><strong>{% trans "ID" %}:</strong> {{ object.id }}</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
+                <a href="{% url 'world_expenses_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

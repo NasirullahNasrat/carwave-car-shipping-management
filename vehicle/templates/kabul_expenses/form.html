@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">{{ title }}</h1>
+        
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                {% for error in form.non_field_errors %}
+                <p class="text-red-700">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Car Selection -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.car.id_for_label }}">
+                        {{ form.car.label }}
+                    </label>
+                    {{ form.car }}
+                    {% for error in form.car.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Herat to Kabul Cost with Currency -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        {{ form.herat_to_kabul_cost.label }}
+                    </label>
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            {{ form.herat_to_kabul_cost }}
+                            {% for error in form.herat_to_kabul_cost.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="flex-1">
+                            {{ form.herat_to_kabul_cost_currency }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- USA to Kabul Cost (now calculated and readonly) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        مصارف از امریکا الى کابل (محاسبه شده)
+                    </label>
+                    <input type="text" 
+                           value="{{ form.instance.usa_to_kabul_cost|default:'0' }}" 
+                           class="w-full px-3 py-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out"
+                           readonly>
+                    <p class="mt-1 text-xs text-gray-500">این مقدار به صورت خودکار محاسبه می شود: مصارف الی هرات + کرایه هرات به کابل</p>
+                </div>
+
+                <!-- Has Remaining Price Checkbox -->
+                <div class="flex items-center">
+                    {{ form.has_remaining_price_from_herat_to_kabul }}
+                    <label class="ml-2 block text-sm font-medium text-gray-700" for="{{ form.has_remaining_price_from_herat_to_kabul.id_for_label }}">
+                        {{ form.has_remaining_price_from_herat_to_kabul.label }}
+                    </label>
+                    {% for error in form.has_remaining_price_from_herat_to_kabul.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Remaining Price (conditionally shown) -->
+                <div id="remaining_price_fields" class="{% if not form.has_remaining_price_from_herat_to_kabul.value %}hidden{% endif %}">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.remaining_price_from_herat_to_kabul.id_for_label }}">
+                        {{ form.remaining_price_from_herat_to_kabul.label }}
+                    </label>
+                    {{ form.remaining_price_from_herat_to_kabul }}
+                    {% for error in form.remaining_price_from_herat_to_kabul.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Remaining Price Date (conditionally shown) -->
+                <div id="remaining_price_date_fields" class="{% if not form.has_remaining_price_from_herat_to_kabul.value %}hidden{% endif %}">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.remaining_price_from_herat_to_kabul_date.id_for_label }}">
+                        {{ form.remaining_price_from_herat_to_kabul_date.label }}
+                    </label>
+                    {{ form.remaining_price_from_herat_to_kabul_date }}
+                    {% for error in form.remaining_price_from_herat_to_kabul_date.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+
+                <!-- Dates -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.arrival_date_kabul.id_for_label }}">
+                        {{ form.arrival_date_kabul.label }}
+                    </label>
+                    {{ form.arrival_date_kabul }}
+                    {% for error in form.arrival_date_kabul.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                
+                <!-- Calculated Field (Readonly) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.total_cost_in_kabul.id_for_label }}">
+                        {{ form.total_cost_in_kabul.label }}
+                    </label>
+                    {{ form.total_cost_in_kabul }}
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-end space-x-3">
+                <a href="{% url 'kabul_expenses_list' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md transition duration-150 ease-in-out">
+                    انصراف
+                </a>
+                <button type="submit" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out">
+                    ذخیره
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hasRemainingCheckbox = document.getElementById('{{ form.has_remaining_price_from_herat_to_kabul.id_for_label }}');
+    const remainingPriceFields = document.getElementById('remaining_price_fields');
+    const remainingPriceDateFields = document.getElementById('remaining_price_date_fields');
+
+    function toggleRemainingFields() {
+        if (hasRemainingCheckbox.checked) {
+            remainingPriceFields.classList.remove('hidden');
+            remainingPriceDateFields.classList.remove('hidden');
+        } else {
+            remainingPriceFields.classList.add('hidden');
+            remainingPriceDateFields.classList.add('hidden');
+        }
+    }
+
+    // Initial toggle
+    toggleRemainingFields();
+
+    // Add event listener
+    hasRemainingCheckbox.addEventListener('change', toggleRemainingFields);
+});
+</script>
+{% endblock %}

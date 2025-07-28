@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}لیست خریدها{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-800">لیست خریدها</h2>
+        <a href="{% url 'purchaseinfo-create' %}" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition duration-200">
+            <i class="fas fa-plus ml-2"></i>
+            افزودن خرید جدید
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">موتر</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">قیمت خرید</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">پرداخت شده</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">باقیمانده</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاریخ خرید</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">عملیات</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for purchase in purchases %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ purchase.car.mark }} - {{ purchase.car.car_type }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ purchase.purchase_price|floatformat:2 }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ purchase.paid_amount|floatformat:2 }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ purchase.formatted_remain_purchase }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ purchase.buy_date|date:"Y/m/d H:i" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'purchaseinfo-update' purchase.id %}" class="text-primary-600 hover:text-primary-900 ml-4">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'purchaseinfo-delete' purchase.id %}" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">هیچ خریدی ثبت نشده است</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

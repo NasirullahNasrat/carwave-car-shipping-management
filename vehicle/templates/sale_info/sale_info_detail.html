@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">جزئیات اطلاعات فروش</h1>
+        <div class="flex space-x-2">
+            <a href="{% url 'sale_info_update' object.pk %}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out">
+                ویرایش
+            </a>
+            <a href="{% url 'sale_info_list' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out">
+                بازگشت به لیست
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-800">اطلاعات اصلی</h2>
+        </div>
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">موتر</h3>
+                    <p class="mt-1 text-sm text-gray-900">{{ object.car.mark }} - {{ object.car.car_type }}</p>
+                    <p class="mt-1 text-sm text-gray-500">{{ object.car.vin }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">حالت</h3>
+                    <span class="mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        {% if object.status == object.STATUS_SOLD %}bg-green-100 text-green-800
+                        {% elif object.status == object.STATUS_IN_TRANSIT %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ object.get_status_display }}
+                    </span>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">قیمت فروش</h3>
+                    <p class="mt-1 text-sm text-gray-900">{{ object.sale_price|floatformat:2 }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">تاریخ فروش</h3>
+                    <p class="mt-1 text-sm text-gray-900">{{ object.sale_date|date:"Y/m/d"|default:"-" }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">باقی خریدار</h3>
+                    <p class="mt-1 text-sm text-gray-900">{{ object.remaining_price_of_buyer|floatformat:2 }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">تاریخ پرداخت باقی خریدار</h3>
+                    <p class="mt-1 text-sm text-gray-900">{{ object.buyer_remain_payment_date|date:"Y/m/d"|default:"-" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-800">اطلاعات خریدار</h2>
+        </div>
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">شهریت خریدار</h3>
+                    <p class="mt-1 text-sm text-gray-900">{{ object.buyer_info|default:"-" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Financial Calculations Card -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-800">محاسبات مالی</h2>
+            </div>
+            <div class="px-6 py-4">
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">کمیسیون فروش</h3>
+                        <p class="mt-1 text-sm text-gray-900">{{ object.sale_commission|floatformat:2 }}</p>
+                        <p class="mt-1 text-xs text-gray-500">(2% از قیمت فروش + 100 دلار)</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">قیمت ویژه فروش</h3>
+                        <p class="mt-1 text-sm text-gray-900">{{ object.special_sale_price|floatformat:2 }}</p>
+                        <p class="mt-1 text-xs text-gray-500">(قیمت فروش - کمیسیون فروش)</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">هزینه نهایی</h3>
+                        <p class="mt-1 text-sm text-gray-900">{{ object.final_cost|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits Card -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-800">سوددهی</h2>
+            </div>
+            <div class="px-6 py-4">
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">مفاد</h3>
+                        <p class="mt-1 text-sm text-gray-900">{{ object.benefit|floatformat:2 }}</p>
+                        <p class="mt-1 text-xs text-gray-500">(قیمت ویژه فروش - هزینه نهایی)</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">سود شخص اول</h3>
+                        <p class="mt-1 text-sm text-gray-900">{{ object.benefit_person_1|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">سود شخص دوم</h3>
+                        <p class="mt-1 text-sm text-gray-900">{{ object.benefit_person_2|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">سرمایه مقید</h3>
+                        <p class="mt-1 text-sm text-gray-900">{{ object.capital_bound|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

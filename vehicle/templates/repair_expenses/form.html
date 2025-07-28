@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">{{ title }}</h1>
+        
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                {% for error in form.non_field_errors %}
+                <p class="text-red-700">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Car Selection -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.car.id_for_label }}">
+                        {{ form.car.label }}
+                    </label>
+                    {{ form.car }}
+                    {% for error in form.car.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                
+                <!-- Repair Costs with Currency -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        {{ form.repair_cost.label }}
+                    </label>
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            {{ form.repair_cost }}
+                            {% for error in form.repair_cost.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="flex-1">
+                            {{ form.repair_cost_currency }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.remaining_repair_cost.id_for_label }}">
+                        {{ form.remaining_repair_cost.label }}
+                    </label>
+                    {{ form.remaining_repair_cost }}
+                    {% for error in form.remaining_repair_cost.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                
+                <!-- Palate Costs with Currency -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        {{ form.palate_cost.label }}
+                    </label>
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            {{ form.palate_cost }}
+                            {% for error in form.palate_cost.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="flex-1">
+                            {{ form.palate_cost_currency }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.palate_remaining_const.id_for_label }}">
+                        {{ form.palate_remaining_const.label }}
+                    </label>
+                    {{ form.palate_remaining_const }}
+                    {% for error in form.palate_remaining_const.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                
+                <!-- Calculated Field (Readonly) -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="{{ form.final_cost.id_for_label }}">
+                        {{ form.final_cost.label }}
+                    </label>
+                    {{ form.final_cost }}
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-end space-x-3">
+                <a href="{% url 'repair_expenses_list' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md transition duration-150 ease-in-out">
+                    انصراف
+                </a>
+                <button type="submit" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out">
+                    ذخیره
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}حذف خرید{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6 max-w-md mx-auto">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">حذف خرید</h2>
+    
+    <p class="mb-6">آیا از حذف خرید مربوط به موتر <strong>{{ object.car.mark }} - {{ object.car.car_type }}</strong> مطمئن هستید؟</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="flex justify-end space-x-4 space-x-reverse">
+            <a href="{% url 'purchaseinfo-list' %}" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-200">
+                انصراف
+            </a>
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-200">
+                حذف
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

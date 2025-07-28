@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>حذف اطلاعات حمل و نقل</h1>
+
+<p>آیا از حذف اطلاعات حمل و نقل برای خودرو "{{ shipping_info.car }}" مطمئن هستید؟</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">تأیید حذف</button>
+    <a href="{% url 'shippinginfo-list' %}" class="btn btn-secondary">انصراف</a>
+</form>
+{% endblock %}

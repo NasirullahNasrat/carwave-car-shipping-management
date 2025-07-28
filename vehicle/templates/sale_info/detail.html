@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+    <div class="bg-white shadow-xl rounded-xl overflow-hidden">
+        <!-- Header Section -->
+        <div class="px-8 py-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-900">{% trans "معلومات فروش" %}</h1>
+                <div class="space-x-3">
+                    {% if sale_info and sale_info.pk %}
+                    <a href="{% url 'sale_info_update' sale_info.pk %}" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">
+                        {% trans "ویرایش" %}
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'sale_info_list' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        {% trans "برگشت به لیست" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="px-8 py-6">
+            {% if sale_info %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Car Information -->
+                <div class="md:col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">{% trans "معلومات موتر" %}</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">{% trans "مارک/مودل" %}</p>
+                            <p class="font-medium text-gray-900 mt-1">
+                                {{ sale_info.car.mark|default:"-" }} - {{ sale_info.car.car_type|default:"-" }}
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">{% trans "شماره VIN" %}</p>
+                            <p class="font-medium text-gray-900 mt-1">
+                                {{ sale_info.car.vin|default:"-" }}
+                            </p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">{% trans "سال" %}</p>
+                            <p class="font-medium text-gray-900 mt-1">
+                                {{ sale_info.car.year|default:"-" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sale Information -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">{% trans "جزئیات فروش" %}</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-500">{% trans "حالت" %}</p>
+                            <p class="mt-1">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if sale_info.status == 'آماده فروش' %}bg-yellow-100 text-yellow-800
+                                    {% elif sale_info.status == 'فروخته شده' %}bg-green-100 text-green-800
+                                    {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    {{ sale_info.get_status_display }}
+                                </span>
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">{% trans "تاریخ فروش" %}</p>
+                            <p class="mt-1 font-medium text-gray-900">{{ sale_info.sale_date|date:"Y-m-d"|default:"-" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">{% trans "قیمت فروش" %}</p>
+                            <p class="mt-1 font-medium text-gray-900">
+                                {{ sale_info.sale_price|floatformat:2|default:"-" }} {{ sale_info.sale_price_currency.symbol|default:"" }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">{% trans "تقسیم 50/50" %}</p>
+                            <p class="mt-1 font-medium text-gray-900">{{ sale_info.split_50_50|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buyer Information -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">{% trans "معلومات خریدار" %}</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-500">{% trans "نام خریدار" %}</p>
+                            <p class="mt-1 font-medium text-gray-900">
+                                {% if sale_info.buyer %}
+                                    {{ sale_info.buyer.name }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">{% trans "تماس خریدار" %}</p>
+                            <p class="mt-1 font-medium text-gray-900">
+                                {% if sale_info.buyer %}
+                                    {{ sale_info.buyer.phone|default:"-" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">{% trans "باقیمانده قیمت" %}</p>
+                            <p class="mt-1 font-medium text-gray-900">
+                                {{ sale_info.remaining_price_of_buyer|floatformat:2|default:"-" }} {{ sale_info.sale_price_currency.symbol|default:"" }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">{% trans "تاریخ پرداخت باقیمانده" %}</p>
+                            <p class="mt-1 font-medium text-gray-900">
+                                {{ sale_info.buyer_remain_payment_date|date:"Y-m-d"|default:"-" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Calculations -->
+                <div class="md:col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">{% trans "محاسبات مالی" %}</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Repair Cost -->
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <p class="text-sm text-gray-600">{% trans "هزینه نابی تعمیر" %}</p>
+                            <p class="mt-1 text-lg font-semibold text-gray-800">
+                                {{ repair_final_cost|floatformat:2 }} USD
+                            </p>
+                        </div>
+                        
+                        <!-- Sale Commission -->
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                            <p class="text-sm text-blue-600">{% trans "کمسیون فروش" %}</p>
+                            <p class="mt-1 text-lg font-semibold text-blue-800">
+                                {{ sale_commission|floatformat:2 }} USD
+                            </p>
+                            <p class="text-xs text-blue-500 mt-1">(2% + 100 USD ثابت)</p>
+                        </div>
+                        
+                        <!-- Special Sale Price -->
+                        <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                            <p class="text-sm text-indigo-600">{% trans "قیمت ویژه فروش" %}</p>
+                            <p class="mt-1 text-lg font-semibold text-indigo-800">
+                                {{ special_sale_price|floatformat:2 }} USD
+                            </p>
+                            <p class="text-xs text-indigo-500 mt-1">(قیمت - کمسیون)</p>
+                        </div>
+                        
+                        <!-- Benefit -->
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <p class="text-sm text-green-600">{% trans "سود کلی" %}</p>
+                            <p class="mt-1 text-lg font-semibold text-green-800">
+                                {{ benefit|floatformat:2 }} USD
+                            </p>
+                            <p class="text-xs text-green-500 mt-1">(قیمت ویژه - هزینه تعمیر)</p>
+                        </div>
+                        
+                        <!-- Benefit Per Person -->
+                        <div class="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                            <p class="text-sm text-teal-600">{% trans "سود هر نفر" %}</p>
+                            <p class="mt-1 text-lg font-semibold text-teal-800">
+                                {{ benefit_person_1|floatformat:2 }} USD
+                            </p>
+                            <p class="text-xs text-teal-500 mt-1">(50% از سود کلی)</p>
+                        </div>
+                        
+                        <!-- Capital Bound -->
+                        <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                            <p class="text-sm text-amber-600">{% trans "سرمایه مسدود" %}</p>
+                            <p class="mt-1 text-lg font-semibold text-amber-800">
+                                {{ capital_bound|floatformat:2 }} USD
+                            </p>
+                            <p class="text-xs text-amber-500 mt-1">
+                                {% if sale_info.status == sale_info.STATUS_SOLD %}
+                                    آزاد شده (موتر فروخته شد)
+                                {% else %}
+                                    مسدود شده (موتر فروخته نشده)
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notes Section -->
+                <div class="md:col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">{% trans "اطلاعات اضافی" %}</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-500">{% trans "یادداشت ها" %}</p>
+                        <p class="mt-1 text-gray-700">
+                            {% if sale_info.notes %}
+                                {{ sale_info.notes }}
+                            {% else %}
+                                هیچ یادداشتی موجود نیست.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <p class="text-red-500">{% trans "معلومات فروش یافت نشد" %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

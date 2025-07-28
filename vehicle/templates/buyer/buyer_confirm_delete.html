@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">حذف خریدار</h1>
+        
+        <p class="mb-6 text-gray-700">آیا مطمئن هستید که می‌خواهید خریدار <strong>{{ object.name }}</strong> را حذف کنید؟</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'buyer_list' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md transition duration-150 ease-in-out">
+                    انصراف
+                </a>
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out">
+                    <i class="fas fa-trash"></i> بله، حذف شود
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

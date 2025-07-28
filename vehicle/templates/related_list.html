@@ -1,0 +1,7 @@
+{% extends 'vehicle/base_list.html' %}
+
+{% with title="مربوطیت ها" create_url="related-create" update_url="related-update" delete_url="related-delete" headers=headers %}
+{% block content %}
+{{ block.super }}
+{% endblock %}
+{% endwith %}

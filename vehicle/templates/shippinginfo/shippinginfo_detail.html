@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}جزئیات اطلاعات حمل و نقل - {{ shipping_info.car.mark }}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Header Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+        <div class="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-shipping-fast ml-2 text-blue-600"></i>
+                        جزئیات اطلاعات حمل و نقل
+                    </h2>
+                    <p class="text-gray-600 mt-1">{{ shipping_info.car.mark }} - {{ shipping_info.car.car_type }}</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <a href="{% url 'shippinginfo-list' %}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
+                        <i class="fas fa-arrow-right ml-2"></i>
+                        بازگشت به لیست
+                    </a>
+                    <a href="{% url 'shippinginfo-update' shipping_info.id %}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors duration-200">
+                        <i class="fas fa-edit ml-2"></i>
+                        ویرایش
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Basic Information Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all duration-200 hover:shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-green-100">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-info-circle ml-2 text-green-600"></i>
+                    اطلاعات پایه
+                </h3>
+            </div>
+            <div class="px-6 py-4 space-y-4">
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">موتر:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.car.mark }} - {{ shipping_info.car.car_type }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Bkg#:</span>
+                    <span class="font-medium">{{ shipping_info.bkg_number|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Cnt#:</span>
+                    <span class="font-medium">{{ shipping_info.cnt_number|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">ETD from USA:</span>
+                    <span class="font-medium">{{ shipping_info.etd_from_usa|date:"Y/m/d"|default:"-" }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-600">تاریخ رسید به امارات:</span>
+                    <span class="font-medium">
+                        {% if not shipping_info.date_arrived_in_dubai %}
+                            <span class="text-yellow-600">در مسیر راه امریکا امارات</span>
+                        {% else %}
+                            {{ shipping_info.date_arrived_in_dubai|date:"Y/m/d" }}
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transportation Costs Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all duration-200 hover:shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-dollar-sign ml-2 text-blue-600"></i>
+                    هزینه‌های حمل و نقل
+                </h3>
+            </div>
+            <div class="px-6 py-4 space-y-4">
+                {% with currency=shipping_info.shipping_currency %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Shipping:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.shipping|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+                
+                {% with currency=shipping_info.towing_currency %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Towing:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.towing|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+                
+                {% with currency=shipping_info.red_sea_currency %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">RED SEA:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.red_sea|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+                
+                {% with currency=shipping_info.d_o_currency %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">D/O:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.d_o|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+                
+                {% with currency=shipping_info.duty_vat_currency %}
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-600">DUTY/VAT:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.duty_vat|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+
+        <!-- Customs and Other Costs Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all duration-200 hover:shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-purple-100">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-file-invoice-dollar ml-2 text-purple-600"></i>
+                    هزینه‌های گمرک و سایر
+                </h3>
+            </div>
+            <div class="px-6 py-4 space-y-4">
+                {% with currency=shipping_info.clearing_currency %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">CLEARING:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.clearing|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+                
+                {% with currency=shipping_info.commission_currency %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">COMISSION:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.commission|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+                
+                {% with currency=shipping_info.attstion_currency %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">ATTSTION INSSPECTION PORTCLIP$PRMI..:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.attstion|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+                
+                {% with currency=shipping_info.port_clips_prmi_currency %}
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-600">PORTCLIPSPRMI:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.port_clips_prmi|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+
+        <!-- Payments and Calculations Card -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all duration-200 hover:shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-indigo-100">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-calculator ml-2 text-indigo-600"></i>
+                    پرداخت‌ها و محاسبات
+                </h3>
+            </div>
+            <div class="px-6 py-4 space-y-4">
+                {% with currency=shipping_info.cash_paid_comission_currency %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">کمیشن حواله پول:</span>
+                    <span class="font-medium text-gray-800">{{ shipping_info.cash_paid_comission|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+                
+                {% with currency=shipping_info.dubai_paid_invoice_currency %}
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">مبلغ پرداخت شده انوایس دبی:</span>
+                    <span class="font-medium text-green-600">{{ shipping_info.dubai_paid_invoice|floatformat:2|default:"0.00" }} {{ currency.code }}</span>
+                </div>
+                {% endwith %}
+                
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">باقی انوایس دبی:</span>
+                    <span class="font-medium text-red-600">{{ shipping_info.dubai_remain_invoice|floatformat:2|default:"0.00" }} USD</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-600">قیمت تمام شده الی دبی:</span>
+                    <span class="font-medium text-blue-600">{{ shipping_info.computed_total_price_to_dubai|floatformat:2|default:"0.00" }} USD</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all duration-200 hover:shadow-lg">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-amber-100">
+            <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-chart-pie ml-2 text-amber-600"></i>
+                خلاصه محاسبات
+            </h3>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                <span class="text-gray-600">میزان انوایس دبی:</span>
+                <span class="font-medium text-gray-800">{{ shipping_info.mizan_invoice_dubai|floatformat:2|default:"0.00" }} USD</span>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                <span class="text-gray-600">میزان مصارف الی دبی:</span>
+                <span class="font-medium text-gray-800">{{ shipping_info.mizan_masaref_up_to_dubai|floatformat:2|default:"0.00" }} USD</span>
+            </div>
+            {% if shipping_info.car and shipping_info.car.purchase_info %}
+            <div class="flex justify-between items-center py-2">
+                <span class="text-gray-600">قیمت خرید موتر:</span>
+                <span class="font-medium text-gray-800">{{ shipping_info.car.purchase_info.purchase_price|floatformat:2|default:"0.00" }} {{ shipping_info.car.purchase_info.purchase_price_currency.code }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

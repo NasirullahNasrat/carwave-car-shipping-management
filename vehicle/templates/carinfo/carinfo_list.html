@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}لیست معلومات جنس{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.tailwindcss.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+        <h3 class="text-lg font-semibold text-gray-800">
+            لیست معلومات جنس
+        </h3>
+        <a href="{% url 'carinfo-create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150 ease-in-out">
+            ایجاد جدید
+        </a>
+    </div>
+    
+    <div class="overflow-x-auto p-4">
+        <table id="carsTable" class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">LOT#</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">MARK</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">نوع</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">مدل سال</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">VIN#</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">اقدامات</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for car in cars %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ car.lot }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ car.mark }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ car.car_type }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ car.model_year }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ car.vin }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-reverse space-x-2">
+                        <a href="{% url 'carinfo-update' car.pk %}" class="text-primary-600 hover:text-primary-900"><i class="fas fa-edit"></i></a>
+                        <a href="{% url 'carinfo-delete' car.pk %}" class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">هیچ اطلاعاتی یافت نشد</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.tailwindcss.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#carsTable').DataTable({
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.11.5/i18n/fa.json"
+        },
+        responsive: true,
+        dom: '<"flex justify-between items-center mb-4"lf><"table-responsive"t><"flex justify-between items-center mt-4"ip>',
+        initComplete: function() {
+            $('.dataTables_filter input').addClass('border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500');
+            $('.dataTables_length select').addClass('border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500');
+        },
+        columnDefs: [
+            { orderable: false, targets: 5 } // Disable sorting for actions column
+        ]
+    });
+});
+</script>
+{% endblock %}

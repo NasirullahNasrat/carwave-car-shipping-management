@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load i18n humanize %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">لیست مصارف انتقالات</h1>
+        <a href="{% url 'world_expenses_create' %}" class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md transition duration-150 ease-in-out">
+            اضافه کردن جدید
+        </a>
+    </div>
+
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">موتر</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاریخ بارگیری</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">شیپینگ به اسلام قلعه</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">محصول گمرکی</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">کمیشن شرکت</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">کل مصارف</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for expense in world_expenses %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ expense.car.mark }} - {{ expense.car.car_type }}</div>
+                            <div class="text-xs text-gray-500">{{ expense.car.plate_number }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {{ expense.return_date_from_dubai|date:"Y/m/d"|default:"-" }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ expense.herat_arrival_date|date:"Y/m/d"|default:"-" }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {{ expense.shipiping_price_to_islam_qala|intcomma }} {{ expense.shipiping_price_to_islam_qala_currency.code }}
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                پرداخت شده: {{ expense.paid_value_for_shipping|intcomma }} ({{ expense.paid_value_for_shipping_date|date:"Y/m/d"|default:"-" }})
+                            </div>
+                            {% if expense.remain_shipping_for_islam_qala %}
+                            <div class="text-xs text-red-500 mt-1">
+                                باقی: {{ expense.remain_shipping_for_islam_qala|floatformat:2|intcomma }}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {{ expense.gomrok_payment|intcomma }} {{ expense.gomrok_payment_currency.code }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ expense.gomrok_payment_date|date:"Y/m/d"|default:"-" }}
+                            </div>
+                            {% if expense.has_gomrok_remain_payment %}
+                            <div class="text-xs text-red-500 mt-1">
+                                باقی: {{ expense.gomrok_remain_payment|intcomma }} ({{ expense.gomrok_remain_payment_date|date:"Y/m/d"|default:"-" }})
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                {{ expense.business_company_comission|intcomma }} {{ expense.business_company_comission_currency.code }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ expense.business_company_comission_date|date:"Y/m/d"|default:"-" }}
+                            </div>
+                            {% if expense.has_business_company_remain_comission %}
+                            <div class="text-xs text-red-500 mt-1">
+                                باقی: {{ expense.business_company_remain_comission|intcomma }} ({{ expense.business_company_remain_comission_date|date:"Y/m/d"|default:"-" }})
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ expense.all_expeses_to_herat|floatformat:2|intcomma }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                مصارف تا هرات: {{ expense.expeses_up_to_herat|floatformat:2|intcomma }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2 space-x-reverse">
+                                <a href="{% url 'world_expenses_detail' expense.pk %}" class="text-blue-600 hover:text-blue-900" title="مشاهده">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'world_expenses_update' expense.pk %}" class="text-primary-600 hover:text-primary-900" title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'world_expenses_delete' expense.pk %}" class="text-red-600 hover:text-red-900" title="حذف">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">هیچ داده‌ای وجود ندارد</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if is_paginated %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    قبلی
+                </a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    بعدی
+                </a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        نمایش
+                        <span class="font-medium">{{ page_obj.start_index }}</span>
+                        تا
+                        <span class="font-medium">{{ page_obj.end_index }}</span>
+                        از
+                        <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                        نتایج
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">قبلی</span>
+                            &larr;
+                        </a>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-primary-500 bg-primary-50 text-sm font-medium text-primary-600">
+                                {{ num }}
+                            </a>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                {{ num }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">بعدی</span>
+                            &rarr;
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

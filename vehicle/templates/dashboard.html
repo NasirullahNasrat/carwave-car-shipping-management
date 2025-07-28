@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load custom_filters %}  <!-- Add this line -->
+{% block title %}داشبورد{% endblock %}
+
+{% block header_title %}داشبورد{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <!-- Stats Cards -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500">تعداد کل موترها</p>
+                <h3 class="text-2xl font-bold">{{ cars_count }}</h3>
+            </div>
+            <div class="bg-purple-100 p-3 rounded-full text-purple-600">
+                <i class="fas fa-car text-xl"></i>
+            </div>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">
+            {% if cars_count_change > 0 %}
+            <i class="fas fa-arrow-up ml-1 text-green-500"></i> {{ cars_count_change }}% افزایش
+            {% elif cars_count_change < 0 %}
+            <i class="fas fa-arrow-down ml-1 text-red-500"></i> {{ cars_count_change|absolute }}% کاهش
+            {% else %}
+            بدون تغییر
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500">موترهای فروخته شده</p>
+                <h3 class="text-2xl font-bold">{{ sold_cars_count }}</h3>
+            </div>
+            <div class="bg-green-100 p-3 rounded-full text-green-600">
+                <i class="fas fa-check-circle text-xl"></i>
+            </div>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">
+            {% widthratio sold_cars_count cars_count 100 %}% از کل موترها
+        </p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500">مفاد کل</p>
+                <h3 class="text-2xl font-bold">{{ total_benefit|floatformat:0|intcomma }} {{ base_currency_symbol }}</h3>
+            </div>
+            <div class="bg-blue-100 p-3 rounded-full text-blue-600">
+                <i class="fas fa-wallet text-xl"></i>
+            </div>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">
+            میانگین سود: {{ avg_benefit|floatformat:0|intcomma }} {{ base_currency_symbol }}
+        </p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500">موترهای آماده فروش</p>
+                <h3 class="text-2xl font-bold">{{ ready_cars_count }}</h3>
+            </div>
+            <div class="bg-yellow-100 p-3 rounded-full text-yellow-600">
+                <i class="fas fa-tag text-xl"></i>
+            </div>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">
+            {% widthratio ready_cars_count cars_count 100 %}% از کل موترها
+        </p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Financial Summary -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b border-gray-200">
+            <h3 class="font-semibold">خلاصه مالی</h3>
+        </div>
+        <div class="p-4">
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">مجموع سرمایه گذاری:</span>
+                    <span class="font-medium">{{ total_investment|floatformat:0|intcomma }} {{ base_currency_symbol }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">مجموع فروش:</span>
+                    <span class="font-medium">{{ total_sales|floatformat:0|intcomma }} {{ base_currency_symbol }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">مجموع هزینه‌ها:</span>
+                    <span class="font-medium">{{ total_expenses|floatformat:0|intcomma }} {{ base_currency_symbol }}</span>
+                </div>
+                <div class="flex justify-between items-center border-t border-gray-200 pt-3">
+                    <span class="text-gray-800 font-semibold">مفاد کل:</span>
+                    <span class="font-bold {% if total_benefit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        {{ total_benefit|floatformat:0|intcomma }} {{ base_currency_symbol }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">سرمایه در گردش:</span>
+                    <span class="font-medium">{{ capital_bound|floatformat:0|intcomma }} {{ base_currency_symbol }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Cars -->
+    <div class="bg-white rounded-lg shadow lg:col-span-2">
+        <div class="p-4 border-b border-gray-200">
+            <h3 class="font-semibold">موترهای اخیر</h3>
+        </div>
+        <div class="p-4 overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">مارک</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">سال مدل</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">وضعیت</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">قیمت فروش</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">سود</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for car in recent_cars %}
+                    <tr>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <a href="{% url 'carinfo-update' car.id %}" class="text-primary-600 hover:underline">
+                                {{ car.mark }} {{ car.car_type }}
+                            </a>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">{{ car.model_year }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            {% if car.sale_info %}
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if car.sale_info.status == 'فروخته شده' %}bg-green-100 text-green-800
+                                    {% elif car.sale_info.status == 'آماده فروش' %}bg-blue-100 text-blue-800
+                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                    {{ car.sale_info.get_status_display }}
+                                </span>
+                            {% else %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">در حال پردازش</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            {% if car.sale_info %}
+                                {{ car.sale_info.sale_price|floatformat:0|intcomma }} {{ base_currency_symbol }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            {% if car.sale_info %}
+                                <span class="{% if car.sale_info.benefit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                    {{ car.sale_info.benefit|floatformat:0|intcomma }} {{ base_currency_symbol }}
+                                </span>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Status Distribution -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b border-gray-200">
+            <h3 class="font-semibold">توزیع وضعیت موترها</h3>
+        </div>
+        <div class="p-4">
+            <div class="h-64">
+                <div class="grid grid-cols-3 gap-4 h-full items-center">
+                    <div class="text-center">
+                        <div class="mx-auto w-24 h-24 rounded-full bg-green-100 flex items-center justify-center">
+                            <span class="text-2xl font-bold text-green-600">{{ sold_cars_count }}</span>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600">فروخته شده</p>
+                        <p class="text-xs text-gray-500">{% widthratio sold_cars_count cars_count 100 %}%</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="mx-auto w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center">
+                            <span class="text-2xl font-bold text-blue-600">{{ ready_cars_count }}</span>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600">آماده فروش</p>
+                        <p class="text-xs text-gray-500">{% widthratio ready_cars_count cars_count 100 %}%</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="mx-auto w-24 h-24 rounded-full bg-yellow-100 flex items-center justify-center">
+                            <span class="text-2xl font-bold text-yellow-600">{{ in_transit_cars_count }}</span>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600">در راه</p>
+                        <p class="text-xs text-gray-500">{% widthratio in_transit_cars_count cars_count 100 %}%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performing Cars -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-4 border-b border-gray-200">
+            <h3 class="font-semibold">موترهای پرفروش</h3>
+        </div>
+        <div class="p-4">
+            <div class="space-y-4">
+                {% for car in top_performing_cars %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3 space-x-reverse">
+                        {% if car.images.first %}
+                        <img src="{{ car.images.first.image.url }}" alt="{{ car.mark }}" class="w-10 h-10 object-cover rounded">
+                        {% else %}
+                        <div class="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
+                            <i class="fas fa-car text-gray-400"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <p class="font-medium">{{ car.mark }} {{ car.car_type }}</p>
+                            <p class="text-xs text-gray-500">{{ car.model_year }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-medium">{{ car.sale_info.sale_price|floatformat:0|intcomma }} {{ base_currency_symbol }}</p>
+                        <p class="text-xs {% if car.sale_info.benefit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                            {{ car.sale_info.benefit|floatformat:0|intcomma }} {{ base_currency_symbol }} سود
+                        </p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-center py-4">داده‌ای برای نمایش وجود ندارد</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="bg-white rounded-lg shadow mb-6">
+    <div class="p-4 border-b border-gray-200">
+        <h3 class="font-semibold">مدیریت موترها</h3>
+    </div>
+    <div class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'carinfo-create' %}" class="block p-4 bg-primary-50 text-primary-600 rounded-lg hover:bg-primary-100 transition text-center">
+                <i class="fas fa-plus-circle text-2xl mb-2"></i>
+                <p>موتر جدید</p>
+            </a>
+            <a href="{% url 'carinfo-list' %}" class="block p-4 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition text-center">
+                <i class="fas fa-list text-2xl mb-2"></i>
+                <p>لیست موترها</p>
+            </a>
+            <a href="{% url 'purchaseinfo-list' %}" class="block p-4 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-center">
+                <i class="fas fa-shopping-cart text-2xl mb-2"></i>
+                <p>لیست خریدها</p>
+            </a>
+            <a href="{% url 'sale_info_list' %}" class="block p-4 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition text-center">
+                <i class="fas fa-tag text-2xl mb-2"></i>
+                <p>لیست فروش‌ها</p>
+            </a>
+            <a href="{% url 'currency-list' %}" class="block p-4 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 transition text-center">
+                <i class="fas fa-money-bill-wave text-2xl mb-2"></i>
+                <p>مدیریت ارزها</p>
+            </a>
+            <a href="{% url 'related-list' %}" class="block p-4 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition text-center">
+                <i class="fas fa-link text-2xl mb-2"></i>
+                <p>مربوطیت‌ها</p>
+            </a>
+            <a href="{% url 'carmark-list' %}" class="block p-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition text-center">
+                <i class="fas fa-car text-2xl mb-2"></i>
+                <p>مارک‌های موتر</p>
+            </a>
+            <a href="{% url 'cartype-list' %}" class="block p-4 bg-pink-50 text-pink-600 rounded-lg hover:bg-pink-100 transition text-center">
+                <i class="fas fa-car-side text-2xl mb-2"></i>
+                <p>انواع موتر</p>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Currency Exchange Rates -->
+<div class="bg-white rounded-lg shadow mb-6">
+    <div class="p-4 border-b border-gray-200">
+        <h3 class="font-semibold">نرخ‌های ارز (پایه: {{ base_currency_code }})</h3>
+    </div>
+    <div class="p-4 overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">ارز</th>
+                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">نرخ فعلی</th>
+                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">آخرین بروزرسانی</th>
+                    <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">وضعیت</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for currency in currencies %}
+                <tr>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <div class="flex items-center space-x-2 space-x-reverse">
+                            <span class="font-medium">{{ currency.name }}</span>
+                            <span class="text-gray-500">({{ currency.code }})</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        {{ currency.exchange_rate|floatformat:6 }}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        {{ currency.exchangeratehistory.latest.created_at|date:"Y-m-d H:i" }}
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs rounded-full {% if currency.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if currency.is_active %}فعال{% else %}غیرفعال{% endif %}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

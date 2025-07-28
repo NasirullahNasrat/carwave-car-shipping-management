@@ -1,0 +1,435 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}ویرایش{% else %}افزودن{% endif %} اطلاعات حمل و نقل{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6 max-w-4xl mx-auto">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">
+        {% if object %}ویرایش{% else %}افزودن{% endif %} اطلاعات حمل و نقل
+    </h2>
+    
+    {% if form.errors %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <ul>
+        {% for field in form %}
+            {% for error in field.errors %}
+            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Car Info Section -->
+            <div class="col-span-1">
+                <label for="{{ form.car.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.car.label }}
+                    <span class="text-red-500">*</span>
+                </label>
+                {{ form.car }}
+                {% if form.car.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.car.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Basic Info Section -->
+            <div class="col-span-1">
+                <label for="{{ form.bkg_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.bkg_number.label }}
+                </label>
+                {{ form.bkg_number }}
+            </div>
+
+            <div class="col-span-1">
+                <label for="{{ form.cnt_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.cnt_number.label }}
+                </label>
+                {{ form.cnt_number }}
+            </div>
+
+            <!-- Date Fields Section -->
+            <div class="col-span-1">
+                <label for="{{ form.etd_from_usa.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.etd_from_usa.label }}
+                </label>
+                <input type="date" name="{{ form.etd_from_usa.name }}" id="{{ form.etd_from_usa.id_for_label }}" 
+                       value="{{ form.etd_from_usa.value|default:'' }}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+            </div>
+
+            <div class="col-span-1">
+                <label for="{{ form.date_arrived_in_dubai.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.date_arrived_in_dubai.label }}
+                </label>
+                <input type="date" name="{{ form.date_arrived_in_dubai.name }}" id="{{ form.date_arrived_in_dubai.id_for_label }}" 
+                       value="{{ form.date_arrived_in_dubai.value|default:'' }}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+            </div>
+
+            <!-- Currency Fields Section -->
+            <!-- Shipping -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.shipping.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.shipping.name }}" id="{{ form.shipping.id_for_label }}" 
+                           value="{{ form.shipping.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.shipping_currency.name }}" id="{{ form.shipping_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.shipping_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.shipping_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.shipping_date.name }}" 
+                       value="{% if form.shipping_date.value %}{{ form.shipping_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div>
+
+            <!-- Towing -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.towing.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.towing.name }}" id="{{ form.towing.id_for_label }}" 
+                           value="{{ form.towing.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.towing_currency.name }}" id="{{ form.towing_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.towing_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.towing_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.towing_date.name }}" 
+                       value="{% if form.towing_date.value %}{{ form.towing_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div>
+
+            <!-- Red Sea -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.red_sea.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.red_sea.name }}" id="{{ form.red_sea.id_for_label }}" 
+                           value="{{ form.red_sea.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.red_sea_currency.name }}" id="{{ form.red_sea_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.red_sea_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.red_sea_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.red_sea_date.name }}" 
+                       value="{% if form.red_sea_date.value %}{{ form.red_sea_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div>
+
+            <!-- D/O -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.d_o.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.d_o.name }}" id="{{ form.d_o.id_for_label }}" 
+                           value="{{ form.d_o.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.d_o_currency.name }}" id="{{ form.d_o_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.d_o_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.d_o_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.d_o_date.name }}" 
+                       value="{% if form.d_o_date.value %}{{ form.d_o_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div>
+
+            <!-- Duty/VAT -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.duty_vat.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.duty_vat.name }}" id="{{ form.duty_vat.id_for_label }}" 
+                           value="{{ form.duty_vat.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.duty_vat_currency.name }}" id="{{ form.duty_vat_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.duty_vat_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.duty_vat_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.duty_vat_date.name }}" 
+                       value="{% if form.duty_vat_date.value %}{{ form.duty_vat_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div>
+
+            <!-- Clearing -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.clearing.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.clearing.name }}" id="{{ form.clearing.id_for_label }}" 
+                           value="{{ form.clearing.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.clearing_currency.name }}" id="{{ form.clearing_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.clearing_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.clearing_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.clearing_date.name }}" 
+                       value="{% if form.clearing_date.value %}{{ form.clearing_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div>
+
+            <!-- Commission -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.commission.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.commission.name }}" id="{{ form.commission.id_for_label }}" 
+                           value="{{ form.commission.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.commission_currency.name }}" id="{{ form.commission_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.commission_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.commission_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.commission_date.name }}" 
+                       value="{% if form.commission_date.value %}{{ form.commission_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div>
+
+            <!-- Attstion -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.attstion.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.attstion.name }}" id="{{ form.attstion.id_for_label }}" 
+                           value="{{ form.attstion.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.attstion_currency.name }}" id="{{ form.attstion_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.attstion_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.attstion_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.attstion_date.name }}" 
+                       value="{% if form.attstion_date.value %}{{ form.attstion_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div>
+
+            <!-- Dubai Paid Invoice -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.dubai_paid_invoice.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.dubai_paid_invoice.name }}" id="{{ form.dubai_paid_invoice.id_for_label }}" 
+                           value="{{ form.dubai_paid_invoice.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.dubai_paid_invoice_currency.name }}" id="{{ form.dubai_paid_invoice_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.dubai_paid_invoice_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.dubai_paid_invoice_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.dubai_paid_invoice_date.name }}" 
+                       value="{% if form.dubai_paid_invoice_date.value %}{{ form.dubai_paid_invoice_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div>
+
+            <!-- Cash Paid Commission -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.cash_paid_comission.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.cash_paid_comission.name }}" id="{{ form.cash_paid_comission.id_for_label }}" 
+                           value="{{ form.cash_paid_comission.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.cash_paid_comission_currency.name }}" id="{{ form.cash_paid_comission_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.cash_paid_comission_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.cash_paid_comission_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.cash_paid_comission_date.name }}" 
+                       value="{% if form.cash_paid_comission_date.value %}{{ form.cash_paid_comission_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div>
+
+            <!-- Port Clips Prmi -->
+            {% comment %} <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.port_clips_prmi.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.port_clips_prmi.name }}" id="{{ form.port_clips_prmi.id_for_label }}" 
+                           value="{{ form.port_clips_prmi.value|default:'' }}" step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.port_clips_prmi_currency.name }}" id="{{ form.port_clips_prmi_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.port_clips_prmi_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.port_clips_prmi_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="{{ form.port_clips_prmi_date.name }}" 
+                       value="{% if form.port_clips_prmi_date.value %}{{ form.port_clips_prmi_date.value|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+            </div> {% endcomment %}
+
+    <!-- Total Price to Dubai -->
+<!-- Total Price to Dubai -->
+<div class="col-span-1">
+    <label class="block text-sm font-medium text-gray-700 mb-1">
+        {{ form.total_price_to_dubai.label }}
+    </label>
+    <div class="flex gap-2">
+        <input type="number" 
+               name="{{ form.total_price_to_dubai.name }}" 
+               id="id_total_price_to_dubai" 
+               value="{{ form.total_price_to_dubai.value|default:'' }}" 
+               step="0.01"
+               readonly
+               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+        <span class="inline-flex items-center px-3 bg-gray-100 border border-gray-300 rounded-md text-gray-700">
+            USD
+        </span>
+    </div>
+    <input type="hidden" name="{{ form.total_price_to_dubai_currency.name }}" 
+           value="{{ usd_currency.pk }}">
+</div>
+        
+        <div class="mt-6 flex justify-end space-x-4 space-x-reverse">
+            <a href="{% url 'shippinginfo-list' %}" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-200">
+                انصراف
+            </a>
+            <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition duration-200">
+                ذخیره
+            </button>
+        </div>
+    </form>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set today's date for all date fields in create mode
+        {% if not object %}
+        const today = new Date().toISOString().split('T')[0];
+        document.querySelectorAll('input[type="date"]').forEach(input => {
+            if (!input.value) {
+                input.value = today;
+            }
+        });
+        {% endif %}
+        
+        // Get all currency amount inputs
+        const amountInputs = document.querySelectorAll('input[type="number"]:not([readonly])');
+        const currencySelects = document.querySelectorAll('select[id$="_currency"]');
+        const totalPriceInput = document.getElementById('id_total_price_to_dubai');
+        
+        // Function to calculate total price
+        function calculateTotalPrice() {
+            let total = 0;
+            
+            // Convert all amounts to USD and sum them
+            amountInputs.forEach(input => {
+                if (!input.readOnly && input.value) {
+                    const amount = parseFloat(input.value);
+                    const currencySelect = document.getElementById(input.id.replace('_amount', '_currency'));
+                    const exchangeRate = getExchangeRate(currencySelect.value); // You'll need to implement this
+                    
+                    if (!isNaN(amount) && exchangeRate) {
+                        total += amount * exchangeRate;
+                    }
+                }
+            });
+            
+            // Update the total price field
+            totalPriceInput.value = total.toFixed(2);
+        }
+        
+        // Mock function to get exchange rates - replace with your actual implementation
+        function getExchangeRate(currencyId) {
+            // This should be replaced with actual exchange rate lookup
+            // For now, we'll assume all currencies are 1:1 with USD except where noted
+            const rates = {
+                '1': 1,    // USD
+                '2': 0.85,  // EUR example
+                '3': 0.75   // GBP example
+            };
+            return rates[currencyId] || 1;
+        }
+        
+        // Add event listeners to all amount inputs and currency selects
+        amountInputs.forEach(input => {
+            input.addEventListener('input', calculateTotalPrice);
+        });
+        
+        currencySelects.forEach(select => {
+            select.addEventListener('change', calculateTotalPrice);
+        });
+        
+        // Calculate initial total when page loads
+        calculateTotalPrice();
+        
+        // You might also want to fetch actual exchange rates from an API
+        // fetchExchangeRates();
+    });
+    </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set today's date for all date fields in create mode
+    {% if not object %}
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        if (!input.value) {
+            input.value = today;
+        }
+    });
+    {% endif %}
+    
+    // Add input masking or other JS functionality as needed
+});
+</script>
+{% endblock %}

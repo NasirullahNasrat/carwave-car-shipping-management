@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">عکس‌های موتر</h1>
+        <a href="{% url 'car_images_create' %}{% if request.GET.car %}?car={{ request.GET.car }}{% endif %}" 
+           class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md">
+            افزودن عکس جدید
+        </a>
+    </div>
+
+    {% if request.GET.car %}
+    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h3 class="font-medium">موتر مرتبط: {{ images.0.car.mark }} - {{ images.0.car.car_type }}</h3>
+    </div>
+    {% endif %}
+
+    {% if images %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for image in images %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+            <img src="{{ image.image.url }}" alt="{{ image.description }}" class="w-full h-48 object-cover">
+            <div class="p-4">
+                <p class="text-sm text-gray-600 mb-2">{{ image.description|default:"بدون توضیح" }}</p>
+                <p class="text-xs text-gray-500">{{ image.uploaded_at|date:"Y/m/d H:i" }}</p>
+                <div class="mt-3 flex space-x-2">
+                    <a href="{% url 'car_images_update' image.pk %}" 
+                       class="text-sm text-primary-600 hover:text-primary-800">ویرایش</a>
+                    <a href="{% url 'car_images_delete' image.pk %}" 
+                       class="text-sm text-red-600 hover:text-red-800">حذف</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white p-8 rounded-lg shadow-sm text-center">
+        <p class="text-gray-500">هیچ عکسی یافت نشد</p>
+        <a href="{% url 'car_images_create' %}{% if request.GET.car %}?car={{ request.GET.car }}{% endif %}" 
+           class="mt-4 inline-block bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-md">
+            افزودن اولین عکس
+        </a>
+    </div>
+    {% endif %}
+
+    {% if is_paginated %}
+    <!-- Add pagination here -->
+    {% endif %}
+</div>
+{% endblock %}

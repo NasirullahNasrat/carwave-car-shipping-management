@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}حذف {{ object }}{% endblock %}
+
+{% block header_title %}حذف {{ object }}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="mb-6">
+        <p class="text-lg">آیا از حذف "{{ object }}" مطمئن هستید؟</p>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="flex justify-end space-x-3 space-x-reverse">
+            <a href="{% url 'related-list' %}" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                انصراف
+            </a>
+            <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                حذف
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

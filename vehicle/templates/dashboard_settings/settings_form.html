@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}تنظیمات سیستم{% endblock %}
+
+{% block header_title %}تنظیمات سیستم{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+    <div class="px-4 py-5 sm:px-6 border-b border-gray-200 bg-gray-50">
+        <h3 class="text-lg font-semibold text-gray-800">
+            تنظیمات سیستم
+        </h3>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="p-4 mb-4 rounded-md bg-red-50 text-red-800">
+                {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <label for="{{ form.site_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        نام سیستم
+                    </label>
+                    {{ form.site_name }}
+                    {% if form.site_name.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {{ form.site_name.errors.0 }}
+                    </p>
+                    {% endif %}
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="{{ form.logo.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        لوگو
+                    </label>
+                    {{ form.logo }}
+                    {% if form.logo.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {{ form.logo.errors.0 }}
+                    </p>
+                    {% endif %}
+                    {% if form.logo.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.logo.help_text }}</p>
+                    {% endif %}
+                    {% if form.instance.logo %}
+                    <div class="mt-2">
+                        <img src="{{ form.instance.logo.url }}" alt="Current logo" class="h-20">
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        آدرس
+                    </label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {{ form.address.errors.0 }}
+                    </p>
+                    {% endif %}
+                    {% if form.address.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.address.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        ایمیل
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {{ form.email.errors.0 }}
+                    </p>
+                    {% endif %}
+                    {% if form.email.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.email.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        شماره تماس
+                    </label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {{ form.phone_number.errors.0 }}
+                    </p>
+                    {% endif %}
+                    {% if form.phone_number.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.phone_number.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.base_currency.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        ارز پایه
+                    </label>
+                    {{ form.base_currency }}
+                    {% if form.base_currency.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {{ form.base_currency.errors.0 }}
+                    </p>
+                    {% endif %}
+                    {% if form.base_currency.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.base_currency.help_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-3 space-x-reverse">
+                <button type="submit" class="inline-flex justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-150 ease-in-out">
+                    ذخیره تنظیمات
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% if object %}ویرایش{% else %}افزودن{% endif %} معلومات فروش{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6 max-w-4xl mx-auto">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">
+        {% if object %}ویرایش{% else %}افزودن{% endif %} معلومات فروش
+    </h2>
+    
+    {% if form.errors %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <ul>
+        {% for field in form %}
+            {% for error in field.errors %}
+            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- بخش معلومات موتر -->
+            <div class="col-span-2">
+                <label for="{{ form.car.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.car.label }}
+                    <span class="text-red-500">*</span>
+                </label>
+                <select name="{{ form.car.name }}" id="{{ form.car.id_for_label }}" 
+                        class="w-full select2-car" required>
+                    {% for car in form.car.field.queryset %}
+                    <option value="{{ car.pk }}" 
+                            {% if form.car.value == car.pk %}selected{% endif %}>
+                        {{ car.mark }} - {{ car.car_type }} ({{ car.vin }})
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if form.car.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.car.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- بخش حالت -->
+            <div class="col-span-1">
+                <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.status.label }}
+                    <span class="text-red-500">*</span>
+                </label>
+                <select name="{{ form.status.name }}" id="{{ form.status.id_for_label }}" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    {% for value, label in form.status.field.choices %}
+                    <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if form.status.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.status.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- تقسیم 50/50 -->
+            <div class="col-span-1">
+                <label for="{{ form.split_50_50.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.split_50_50.label }}
+                </label>
+                {{ form.split_50_50 }}
+                {% if form.split_50_50.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.split_50_50.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- بخش خریدار -->
+            <div class="col-span-1">
+                <label for="{{ form.buyer.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.buyer.label }}
+                </label>
+                <select name="{{ form.buyer.name }}" id="{{ form.buyer.id_for_label }}" 
+                        class="w-full select2-buyer">
+                    {% for buyer in form.buyer.field.queryset %}
+                    <option value="{{ buyer.pk }}" 
+                            {% if form.buyer.value == buyer.pk %}selected{% endif %}>
+                        {{ buyer.name }} ({{ buyer.phone|default:"شماره تماس موجود نیست" }})
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if form.buyer.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.buyer.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- قیمت باقیمانده خریدار -->
+            <div class="col-span-1">
+                <label for="{{ form.remaining_price_of_buyer.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.remaining_price_of_buyer.label }}
+                </label>
+                <input type="number" name="{{ form.remaining_price_of_buyer.name }}" 
+                       id="{{ form.remaining_price_of_buyer.id_for_label }}" 
+                       value="{{ form.remaining_price_of_buyer.value|default:0 }}" 
+                       step="0.01"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                {% if form.remaining_price_of_buyer.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.remaining_price_of_buyer.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- تاریخ پرداخت باقیمانده خریدار -->
+            <div class="col-span-1">
+                <label for="{{ form.buyer_remain_payment_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.buyer_remain_payment_date.label }}
+                </label>
+                <input type="date" name="{{ form.buyer_remain_payment_date.name }}" 
+                       id="{{ form.buyer_remain_payment_date.id_for_label }}" 
+                       value="{{ form.buyer_remain_payment_date.value|date:'Y-m-d'|default:'' }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                {% if form.buyer_remain_payment_date.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.buyer_remain_payment_date.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- تاریخ فروش -->
+            <div class="col-span-1">
+                <label for="{{ form.sale_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.sale_date.label }}
+                </label>
+                <input type="date" name="{{ form.sale_date.name }}" 
+                       id="{{ form.sale_date.id_for_label }}" 
+                       value="{{ form.sale_date.value|date:'Y-m-d'|default:'' }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                {% if form.sale_date.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.sale_date.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- بخش قیمت فروش -->
+            <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.sale_price.label }}
+                </label>
+                <div class="flex gap-2">
+                    <input type="number" name="{{ form.sale_price.name }}" 
+                           id="{{ form.sale_price.id_for_label }}" 
+                           value="{{ form.sale_price.value|default:0 }}" 
+                           step="0.01"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    <select name="{{ form.sale_price_currency.name }}" 
+                            id="{{ form.sale_price_currency.id_for_label }}"
+                            class="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        {% for currency in form.sale_price_currency.field.queryset %}
+                        <option value="{{ currency.pk }}" {% if form.sale_price_currency.value == currency.pk %}selected{% endif %}>
+                            {{ currency.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if form.sale_price.errors %}
+                <div class="mt-1 text-sm text-red-600">{{ form.sale_price.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- بخش معلومات محاسبه شده -->
+            <div class="col-span-2 border-t border-gray-200 pt-4 mt-4">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">معلومات محاسبه شده</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- هزینه نهایی تعمیر -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-gray-500">هزینه نهایی تعمیر</h4>
+                        <p class="mt-1 text-lg font-semibold text-gray-900" id="repair-final-cost">
+                            {{ object.repair_final_cost|default:"0" }} USD
+                        </p>
+                    </div>
+                    
+                    <!-- کمیسیون فروش -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-gray-500">کمیسیون فروش</h4>
+                        <p class="mt-1 text-lg font-semibold text-gray-900" id="sale-commission">
+                            {{ object.sale_commission|default:"0" }} USD
+                        </p>
+                    </div>
+                    
+                    <!-- قیمت ویژه فروش -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-gray-500">قیمت ویژه فروش</h4>
+                        <p class="mt-1 text-lg font-semibold text-gray-900" id="special-sale-price">
+                            {{ object.special_sale_price|default:"0" }} USD
+                        </p>
+                    </div>
+                    
+                    <!-- سود -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-gray-500">سود</h4>
+                        <p class="mt-1 text-lg font-semibold text-gray-900" id="benefit">
+                            {{ object.benefit|default:"0" }} USD
+                        </p>
+                    </div>
+                    
+                    <!-- سود شخص اول -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-gray-500">سود شخص اول</h4>
+                        <p class="mt-1 text-lg font-semibold text-gray-900" id="benefit-person-1">
+                            {{ object.benefit_person_1|default:"0" }} USD
+                        </p>
+                    </div>
+                    
+                    <!-- سود شخص دوم -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-gray-500">سود شخص دوم</h4>
+                        <p class="mt-1 text-lg font-semibold text-gray-900" id="benefit-person-2">
+                            {{ object.benefit_person_2|default:"0" }} USD
+                        </p>
+                    </div>
+                    
+                    <!-- سرمایه مسدود -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="text-sm font-medium text-gray-500">سرمایه مسدود</h4>
+                        <p class="mt-1 text-lg font-semibold text-gray-900" id="capital-bound">
+                            {{ object.capital_bound|default:"0" }} USD
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-4 space-x-reverse">
+            <a href="{% if object %}{% url 'sale_info_detail' object.pk %}{% else %}{% url 'sale_info_list' %}{% endif %}" 
+               class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-200">
+                انصراف
+            </a>
+            <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition duration-200">
+                ذخیره
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 برای انتخاب موتر
+    $('.select2-car').select2({
+        placeholder: "جستجوی موتر...",
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "نتیجه‌ای یافت نشد";
+            }
+        }
+    });
+
+    // Initialize Select2 برای انتخاب خریدار
+    $('.select2-buyer').select2({
+        placeholder: "جستجوی خریدار...",
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "نتیجه‌ای یافت نشد";
+            }
+        }
+    });
+
+    // تنظیم تاریخ امروز برای فیلدهای تاریخ اگر خالی باشند
+    {% if not object %}
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        if (!input.value) {
+            input.value = today;
+        }
+    });
+    {% endif %}
+    
+    // دریافت عناصر فرم
+    const statusField = document.getElementById('{{ form.status.id_for_label }}');
+    const salePriceField = document.getElementById('{{ form.sale_price.id_for_label }}');
+    const saleDateField = document.getElementById('{{ form.sale_date.id_for_label }}');
+    const buyerField = document.getElementById('{{ form.buyer.id_for_label }}');
+    
+    // تابع برای تغییر فیلدهای اجباری بر اساس حالت
+    function toggleRequiredFields() {
+        const isSold = statusField.value === '{{ SaleInfo.STATUS_SOLD }}';
+        
+        if (isSold) {
+            salePriceField.required = true;
+            saleDateField.required = true;
+            buyerField.required = true;
+        } else {
+            salePriceField.required = false;
+            saleDateField.required = false;
+            buyerField.required = false;
+        }
+    }
+    
+    // تنظیم اولیه
+    toggleRequiredFields();
+    
+    // افزودن رویداد تغییر برای حالت
+    statusField.addEventListener('change', toggleRequiredFields);
+});
+</script>
+{% endblock %}

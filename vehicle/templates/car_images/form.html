@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow-md rounded-lg p-6 max-w-3xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">
+            {% if form.instance.pk %}ویرایش{% else %}افزودن{% endif %} عکس‌های موتر
+        </h1>
+
+        {% if form.instance.car %}
+        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 class="font-medium">موتر مرتبط: {{ form.instance.car.mark }} - {{ form.instance.car.car_type }}</h3>
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" id="image-upload-form">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                {% if not form.instance.car %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.car.label }}</label>
+                    {{ form.car }}
+                    {% if form.car.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.car.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.image.label }}</label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                        <div class="space-y-1 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="id_image" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none">
+                                    <span>آپلود فایل</span>
+                                    {{ form.image }}
+                                </label>
+                                <p class="pr-1">یا کشیدن و رها کردن</p>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, GIF تا 10MB</p>
+                        </div>
+                    </div>
+                    <div id="file-list" class="mt-2 grid grid-cols-3 gap-2 hidden">
+                        <!-- Preview of selected files will appear here -->
+                    </div>
+                    {% if form.image.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.image.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end space-x-3">
+                <a href="{% url 'car_images_list' %}{% if form.instance.car %}?car={{ form.instance.car.id }}{% endif %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    انصراف
+                </a>
+                <button type="submit" class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-md text-sm font-medium">
+                    ذخیره
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('id_image');
+    const fileList = document.getElementById('file-list');
+    const form = document.getElementById('image-upload-form');
+    
+    // Validate file size before upload
+    fileInput.addEventListener('change', function(e) {
+        fileList.innerHTML = '';
+        fileList.classList.remove('hidden');
+        
+        if (this.files.length > 0) {
+            let validFiles = true;
+            
+            Array.from(this.files).forEach(file => {
+                // Check file size (10MB max)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`فایل ${file.name} بیش از حد بزرگ است. حداکثر حجم مجاز 10MB است.`);
+                    validFiles = false;
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'relative';
+                    fileItem.innerHTML = `
+                        <img src="${e.target.result}" class="h-24 w-full object-cover rounded">
+                        <span class="absolute top-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">${file.name}</span>
+                        <span class="absolute top-1 right-1 bg-black bg-opacity-50 text-white text-xs px-1 rounded">${(file.size/1024/1024).toFixed(2)}MB</span>
+                    `;
+                    fileList.appendChild(fileItem);
+                }
+                reader.readAsDataURL(file);
+            });
+            
+            if (!validFiles) {
+                this.value = ''; // Clear the input
+                fileList.classList.add('hidden');
+            }
+        } else {
+            fileList.classList.add('hidden');
+        }
+    });
+    
+    // Drag and drop functionality
+    const dropArea = document.querySelector('.border-dashed');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        dropArea.classList.add('border-primary-500', 'bg-blue-50');
+    }
+    
+    function unhighlight() {
+        dropArea.classList.remove('border-primary-500', 'bg-blue-50');
+    }
+    
+    dropArea.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        // Validate dropped files
+        let validFiles = true;
+        Array.from(files).forEach(file => {
+            if (file.size > 10 * 1024 * 1024) {
+                validFiles = false;
+            }
+        });
+        
+        if (!validFiles) {
+            alert('یک یا چند فایل بیش از حد بزرگ هستند. حداکثر حجم مجاز 10MB است.');
+            return;
+        }
+        
+        fileInput.files = files;
+        const event = new Event('change');
+        fileInput.dispatchEvent(event);
+    }
+    
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+        if (!fileInput.files || fileInput.files.length === 0) {
+            e.preventDefault();
+            alert('لطفاً یک تصویر انتخاب کنید.');
+            return;
+        }
+    });
+});
+</script>
+
+<style>
+.border-dashed {
+    transition: all 0.2s ease-in-out;
+}
+</style>
+{% endblock %}

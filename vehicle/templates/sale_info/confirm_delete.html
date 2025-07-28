@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">حذف اطلاعات فروش</h1>
+        
+        <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+            <h3 class="font-medium text-gray-800 mb-2">موتر مرتبط:</h3>
+            <p>{{ object.car.mark }} - {{ object.car.car_type }} (VIN: {{ object.car.vin }})</p>
+            
+            <div class="mt-4 grid grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm text-gray-500">قیمت فروش:</p>
+                    <p class="font-medium">{{ object.sale_price|floatformat:2 }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">تاریخ فروش:</p>
+                    <p class="font-medium">{{ object.sale_date|date:"Y/m/d"|default:"-" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <p class="mb-6 text-gray-700">آیا مطمئن هستید که می‌خواهید این اطلاعات فروش را حذف کنید؟ این عمل غیرقابل بازگشت است.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'sale_info_list' %}" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    انصراف
+                </a>
+                <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                    حذف اطلاعات فروش
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

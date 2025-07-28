@@ -1,0 +1,50 @@
+<!-- buyer_form_partial.html -->
+<form id="buyerForm" method="post" action="{% url 'buyer_create' %}" data-submit-ajax>
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+        {{ form.name }}
+        <div class="invalid-feedback">{{ form.name.errors|first }}</div>
+    </div>
+    <div class="mb-3">
+        <label for="{{ form.phone.id_for_label }}" class="form-label">Phone</label>
+        {{ form.phone }}
+        <div class="invalid-feedback">{{ form.phone.errors|first }}</div>
+    </div>
+    <div class="mb-3">
+        <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+        {{ form.address }}
+        <div class="invalid-feedback">{{ form.address.errors|first }}</div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Buyer</button>
+</form>
+
+<script>
+// Handle AJAX form submission (if needed)
+document.getElementById("buyerForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const form = e.target;
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Redirect or update UI on success
+            window.location.href = "{% url 'buyer_create_success' %}?buyer_id=" + data.buyer_id;
+        } else {
+            // Display form errors
+            Object.keys(data.errors).forEach(field => {
+                const input = form.querySelector(`#id_${field}`);
+                input.classList.add('is-invalid');
+                const errorDiv = input.nextElementSibling;
+                errorDiv.textContent = data.errors[field][0].message;
+            });
+        }
+    });
+});
+</script>
